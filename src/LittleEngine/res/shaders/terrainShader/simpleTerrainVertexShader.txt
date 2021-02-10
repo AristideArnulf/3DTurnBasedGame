@@ -1,0 +1,26 @@
+#version 400 core
+
+in vec3 position;
+in vec2 textureCoords;
+in vec3 normal;
+
+out vec2 outTextureCoords;
+
+uniform mat4 transformationMatrix;
+uniform mat4 projectionMatrix;
+uniform mat4 viewMatrix;
+uniform vec3 lightPosition[4];
+
+uniform float tAnim;
+
+// Custom wave function
+float computeHeight(float x, float z) {
+    return 0.1*(sin(x + tAnim) + cos(z + tAnim)) + 1.6;
+}
+
+void main(void) { 
+    vec4 worldPosition = transformationMatrix * vec4(position.x, computeHeight(position.x, position.z), position.z, 1.0);
+    vec4 positionRelativeToCam =  viewMatrix * worldPosition;
+    gl_Position = projectionMatrix * positionRelativeToCam;
+    outTextureCoords = textureCoords;
+}

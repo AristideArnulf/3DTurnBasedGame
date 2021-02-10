@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="generated">
+    <CLASSES />
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/lib/lwjgl-2.9.3-source/src/generated" />
+      <root url="file://$PROJECT_DIR$/lib/lwjgl-2.9.3-source/src/java" />
+      <root url="file://$PROJECT_DIR$/lib/lwjgl-2.9.3-source/src/templates" />
+      <root url="file://$PROJECT_DIR$/lib/slick-utils-source/src" />
+    </SOURCES>
+  </library>
+</component>

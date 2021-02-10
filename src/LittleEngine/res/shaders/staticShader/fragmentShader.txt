@@ -1,0 +1,57 @@
+#version 400 core
+
+in vec3 outPosition;
+in vec2 outTextureCoords;
+in vec3 surfaceNormal;
+in vec3 toLightVector[5];
+in vec3 toCameraVector;
+
+out vec4 outColour;
+
+uniform sampler2D textureSampler;
+uniform vec3 lightColour[5];
+uniform vec3 attenuation[5];
+uniform float shineDamper;
+uniform float reflectivity;
+
+void main(void) {
+    
+    vec3 unitNormal = normalize(surfaceNormal);
+    vec3 unitVectorToCamera = normalize(toCameraVector);
+
+    vec3 totalDiffuse = vec3(0.0);
+    vec3 totalSpecular = vec3(0.0);
+
+    for(int i = 0; i < 5; i++) {
+        float distance = length(toLightVector[i]);
+        float attFactor =  attenuation[i].x + (attenuation[i].y * distance) + (attenuation[i].z * distance * distance);
+        vec3 unitLightVector = normalize(toLightVector[i]);
+    
+        // Diffuse code
+        float nDotl = dot(unitNormal, unitLightVector);
+        float brightness = max(0.0, nDotl);
+        totalDiffuse = totalDiffuse + (brightness * lightColour[i]) / attFactor;
+
+        // Specular code
+        vec3 lightDirection = -unitLightVector;
+        vec3 reflectedLightDirection = reflect(lightDirection, unitNormal);
+
+        float specularFactor = dot(reflectedLightDirection, unitVectorToCamera);
+        specularFactor = max(0.5, specularFactor);
+        float dampedFactor = pow(specularFactor, shineDamper);
+        totalSpecular = totalSpecular + (dampedFactor * reflectivity * lightColour[i]) / attFactor;
+    }
+
+    totalDiffuse = max(totalDiffuse, 0.35);
+    if (outPosition.y < -1) {
+        // Create gradient
+        vec4 colorOne = (vec4(totalDiffuse, 1.0) + .4) * texture(textureSampler, outTextureCoords) + vec4(totalSpecular, 1.0);
+        vec4 colorTwo = texture(textureSampler, outTextureCoords);
+        vec4 value = vec4(clamp(abs(outPosition.y), 0.0, 100.0));
+
+        outColour = mix(vec4(0, 0, 0, 1), colorTwo, value);
+
+    } else {
+        outColour = (vec4(totalDiffuse, 1.0) + .4) * texture(textureSampler, outTextureCoords) + vec4(totalSpecular, 1.0);
+    }
+}
